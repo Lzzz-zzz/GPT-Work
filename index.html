@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我了赛控制室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="particles" class="particles-canvas" aria-hidden="true"></canvas>
+
+  <div class="background-scene" aria-hidden="true">
+    <div class="starfield parallax-layer" data-depth="0.03"></div>
+    <div class="sky-grid parallax-layer" data-depth="0.07"></div>
+
+    <div class="industrial-backdrop parallax-layer" data-depth="0.15">
+      <div class="horizon-glow"></div>
+      <div class="base-floor"></div>
+      <div class="machine tower-left"></div>
+      <div class="machine tower-center"></div>
+      <div class="machine tower-right"></div>
+      <div class="battery bank-left"></div>
+      <div class="battery bank-right"></div>
+      <div class="pipe pipe-long"></div>
+      <div class="pipe pipe-drop"></div>
+      <div class="pipe pipe-back"></div>
+      <div class="portal-arch"></div>
+      <div class="redstone-line redstone-a"></div>
+      <div class="redstone-line redstone-b"></div>
+      <div class="spark spark-a"></div>
+      <div class="spark spark-b"></div>
+      <div class="spark spark-c"></div>
+    </div>
+  </div>
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="noise-layer" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-hud reveal">
+      <div class="brand-block">
+        <span class="chip">WOLESAI / HUB-01 / CONTROL ROOM</span>
+        <p class="eyebrow">CONTROL ROOM</p>
+        <h1 class="glitch" data-text="我了赛控制室">我了赛控制室</h1>
+      </div>
+
+      <div class="hud-metrics">
+        <div class="metric">
+          <span class="metric-label">SERVER TPS</span>
+          <strong class="metric-value live-metric" data-base="20.0" data-variance="0.05" data-decimals="1">20.0</strong>
+          <small>稳定运行 / Chunk 全加载</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">ENERGY BUFFER</span>
+          <strong class="metric-value live-metric" data-base="13.4" data-variance="0.35" data-decimals="1">13.4</strong>
+          <small>PFE / Draconic + Mekanism</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">ME CHANNELS</span>
+          <strong class="metric-value live-metric" data-base="1024" data-variance="16" data-decimals="0">1024</strong>
+          <small>AE2 主网 / 子网桥接在线</small>
+        </div>
+        <div class="metric">
+          <span class="metric-label">MANA TIDE</span>
+          <strong class="metric-value live-metric" data-base="98" data-variance="2.5" data-decimals="0">98</strong>
+          <small>% / Alfheim 通道同步</small>
+        </div>
+        <div class="metric metric-wide">
+          <span class="metric-label">LOCAL CYCLE</span>
+          <strong class="metric-value" id="localTime">00:00:00</strong>
+          <small>夜间值守 / Portal Shield Active</small>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="hero-grid">
+        <article class="panel status-panel reveal tilt-card">
+          <div class="panel-label">基地概况 / Base Status</div>
+          <h2>Overworld Prime Base</h2>
+          <ul class="status-list">
+            <li>
+              <span>主发电组合</span>
+              <strong>Draconic Reactor + Nitro Cells</strong>
+            </li>
+            <li>
+              <span>智能仓储</span>
+              <strong>AE2 量子总线 / 64K Drives</strong>
+            </li>
+            <li>
+              <span>魔法工业</span>
+              <strong>Botania / Ars / Blood Altars</strong>
+            </li>
+            <li>
+              <span>物流网络</span>
+              <strong>Create 机械轴网 + Laser IO</strong>
+            </li>
+            <li>
+              <span>防御系统</span>
+              <strong>Mob Grinder / Shield Dome / Wards</strong>
+            </li>
+          </ul>
+
+          <div class="panel-footer">
+            <span class="pulse-dot"></span>
+            ONLINE
+          </div>
+        </article>
+
+        <section class="core-chamber reveal">
+          <div class="panel-label">主能源核心 / Energy Core</div>
+
+          <div class="core-wrapper">
+            <div class="magic-sigil"></div>
+            <div class="rune-ring rune-ring-a"></div>
+            <div class="rune-ring rune-ring-b"></div>
+            <div class="rune-ring rune-ring-c"></div>
+            <div class="beam beam-a"></div>
+            <div class="beam beam-b"></div>
+            <div class="beam beam-c"></div>
+            <div class="beam beam-d"></div>
+            <div class="energy-orb">
+              <span class="orb-inner"></span>
+              <span class="orb-inner orb-inner-small"></span>
+              <span class="orb-text">13.4 PFE</span>
+            </div>
+          </div>
+
+          <div class="core-readouts">
+            <div class="readout">
+              <span>Induction Reserve</span>
+              <strong class="live-number" data-target="13.4">0.0</strong>
+              <small>PFE / 储量峰值</small>
+            </div>
+            <div class="readout">
+              <span>Output Flow</span>
+              <strong class="live-number" data-target="4.8">0.0</strong>
+              <small>TFE/t / 主输出</small>
+            </div>
+            <div class="readout">
+              <span>Mana Tide</span>
+              <strong class="live-number" data-target="98">0</strong>
+              <small>% / 奥术潮汐</small>
+            </div>
+            <div class="readout">
+              <span>Core Stability</span>
+              <strong class="live-number" data-target="99.7">0.0</strong>
+              <small>% / 结构稳定</small>
+            </div>
+          </div>
+        </section>
+
+        <article class="panel portal-panel reveal tilt-card">
+          <div class="panel-label">维度链路 / Portal Matrix</div>
+          <h2>Quantum Gate Array</h2>
+          <div class="portal-visual">
+            <div class="portal-ring"></div>
+            <div class="portal-ring inner"></div>
+            <div class="portal-core"></div>
+          </div>
+
+          <div class="portal-links">
+            <div class="link-row">
+              <span>下界矿线 / Nether Quarry</span>
+              <strong>稳定</strong>
+            </div>
+            <div class="link-row">
+              <span>末地轨道 / End Orbital Farm</span>
+              <strong>在线</strong>
+            </div>
+            <div class="link-row">
+              <span>暮色森林 / Twilight Grove</span>
+              <strong>就绪</strong>
+            </div>
+            <div class="link-row">
+              <span>Alfheim 通道 / Mana Bridge</span>
+              <strong>同步中</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-intro reveal">
+        <p class="eyebrow">LATE GAME OPERATIONS</p>
+        <h2>主控台子系统</h2>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">能源调度矩阵</div>
+          <h3>Power Dispatch</h3>
+          <div class="meter-list">
+            <div class="meter-block">
+              <div class="meter-head">
+                <span>Draconic Reactor</span>
+                <strong>92%</strong>
+              </div>
+              <div class="meter"><i style="--level: 92%;"></i></div>
+            </div>
+            <div class="meter-block">
+              <div class="meter-head">
+                <span>Mekanism Matrix</span>
+                <strong>86%</strong>
+              </div>
+              <div class="meter"><i style="--level: 86%;"></i></div>
+            </div>
+            <div class="meter-block">
+              <div class="meter-head">
+                <span>Powah Nitro Cells</span>
+                <strong>74%</strong>
+              </div>
+              <div class="meter"><i style="--level: 74%;"></i></div>
+            </div>
+            <div class="meter-block">
+              <div class="meter-head">
+                <span>Flux Relay Grid</span>
+                <strong>97%</strong>
+              </div>
+              <div class="meter"><i style="--level: 97%;"></i></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">ME 仓储矩阵</div>
+          <h3>Storage Vault</h3>
+          <div class="drive-bay" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <ul class="mini-stats">
+            <li><span>物品总量</span><strong>84.2 M</strong></li>
+            <li><span>流体缓存</span><strong>18.9 Mmb</strong></li>
+            <li><span>自动合成 CPU</span><strong>64 核并发</strong></li>
+            <li><span>量子跨区桥接</span><strong>4 条主链路</strong></li>
+          </ul>
+        </article>
+
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">矿物加工产线</div>
+          <h3>Ore Processing Flow</h3>
+          <div class="flow-track">
+            <div class="flow-node">矿脉输入 / Digital Miner</div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">五倍处理 / Chemical Line</div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">Create 压缩 / 精炼封装</div>
+            <div class="flow-connector"></div>
+            <div class="flow-node">终端产物 / Singularity Bus</div>
+          </div>
+        </article>
+
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">魔法工业复合网</div>
+          <h3>Arcane Industry</h3>
+          <div class="ritual-frame" aria-hidden="true">
+            <div class="ritual-ring"></div>
+            <div class="ritual-center"></div>
+            <div class="ritual-node node-a"></div>
+            <div class="ritual-node node-b"></div>
+            <div class="ritual-node node-c"></div>
+            <div class="ritual-node node-d"></div>
+          </div>
+          <ul class="mini-stats">
+            <li><span>Mana Spreader</span><strong>12 路全速</strong></li>
+            <li><span>Source Jar</span><strong>192 / 满载</strong></li>
+            <li><span>Blood Network</span><strong>4.3 M LP</strong></li>
+            <li><span>Rune Fabricator</span><strong>自动配方在线</strong></li>
+          </ul>
+        </article>
+
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">模组系统状态</div>
+          <h3>Mod Status Matrix</h3>
+          <div class="status-chip-grid">
+            <span class="status-chip ok">AE2 / ONLINE</span>
+            <span class="status-chip ok">MEKANISM / ONLINE</span>
+            <span class="status-chip magic">BOTANIA / FLOW</span>
+            <span class="status-chip ok">CREATE / SYNC</span>
+            <span class="status-chip magic">ARS / CHARGED</span>
+            <span class="status-chip warn">BLOOD / HOT</span>
+            <span class="status-chip ok">POWAH / STABLE</span>
+            <span class="status-chip ok">FLUX / MESHED</span>
+            <span class="status-chip ok">LASER IO / ROUTED</span>
+          </div>
+        </article>
+
+        <article class="panel dashboard-card reveal tilt-card">
+          <div class="panel-label">警戒与自动化</div>
+          <h3>Defense + Automation</h3>
+          <div class="alert-list">
+            <div class="alert-item">
+              <span class="alert-icon"></span>
+              <span class="alert-desc">刷怪塔掉落分类</span>
+              <strong>正常</strong>
+            </div>
+            <div class="alert-item">
+              <span class="alert-icon amber"></span>
+              <span class="alert-desc">维度护盾场</span>
+              <strong>99.2%</strong>
+            </div>
+            <div class="alert-item">
+              <span class="alert-icon cyan"></span>
+              <span class="alert-desc">末地农场投递</span>
+              <strong>1.8s 延迟</strong>
+            </div>
+            <div class="alert-item">
+              <span class="alert-icon violet"></span>
+              <span class="alert-desc">法术注能队列</span>
+              <strong>6 任务进行中</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="operations-grid">
+        <article class="panel map-panel reveal">
+          <div class="panel-label">基地拓扑 / Base Topology</div>
+          <h3>Night Base Grid</h3>
+          <div class="base-map" id="baseMap"></div>
+          <div class="map-legend">
+            <span><i class="legend energy"></i>能源</span>
+            <span><i class="legend storage"></i>仓储</span>
+            <span><i class="legend magic"></i>魔法</span>
+            <span><i class="legend portal"></i>传送</span>
+            <span><i class="legend core"></i>主控</span>
+          </div>
+        </article>
+
+        <article class="panel node-panel reveal">
+          <div class="panel-label">世界节点 / World Nodes</div>
+          <h3>Cross-Dimension Sync</h3>
+
+          <div class="node-stack">
+            <div class="node-card">
+              <span>Nether Extraction</span>
+              <strong>2.7 M RF/t</strong>
+              <small>岩浆热网 + 矿产回传</small>
+            </div>
+            <div class="node-card">
+              <span>End Relay Loop</span>
+              <strong>48 Gateways</strong>
+              <small>末地农场 / 经验 / 粒子采样</small>
+            </div>
+            <div class="node-card">
+              <span>Arcane Grove</span>
+              <strong>Mana Saturated</strong>
+              <small>花海、符文与法术工作台联动</small>
+            </div>
+          </div>
+
+          <div class="sync-bars">
+            <div class="sync-row">
+              <span>Portal Shield</span>
+              <div class="meter compact"><i style="--level: 88%;"></i></div>
+            </div>
+            <div class="sync-row">
+              <span>Chunk Sync</span>
+              <div class="meter compact"><i style="--level: 95%;"></i></div>
+            </div>
+            <div class="sync-row">
+              <span>Item Bus</span>
+              <div class="meter compact"><i style="--level: 83%;"></i></div>
+            </div>
+            <div class="sync-row">
+              <span>Spell Routing</span>
+              <div class="meter compact"><i style="--level: 91%;"></i></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="dimension-section">
+        <div class="section-intro reveal">
+          <p class="eyebrow">DIMENSION NETWORK</p>
+          <h2>维度门阵列</h2>
+        </div>
+
+        <div class="dimension-grid">
+          <article class="dimension-card reveal tilt-card accent-cyan">
+            <span class="dim-label">NETHER</span>
+            <h3>下界采掘节点</h3>
+            <div class="dimension-portal"></div>
+            <ul class="dimension-stats">
+              <li><span>矿线温度</span><strong>高热稳定</strong></li>
+              <li><span>回传速率</span><strong>12.8k items/m</strong></li>
+              <li><span>风险等级</span><strong>受控</strong></li>
+            </ul>
+          </article>
+
+          <article class="dimension-card reveal tilt-card accent-violet">
+            <span class="dim-label">THE END</span>
+            <h3>末地轨道中枢</h3>
+            <div class="dimension-portal"></div>
+            <ul class="dimension-stats">
+              <li><span>紫颂网络</span><strong>已桥接</strong></li>
+              <li><span>经验回收</span><strong>98% 效率</strong></li>
+              <li><span>龙息采样</span><strong>持续收集</strong></li>
+            </ul>
+          </article>
+
+          <article class="dimension-card reveal tilt-card accent-teal">
+            <span class="dim-label">TWILIGHT</span>
+            <h3>暮色生态实验区</h3>
+            <div class="dimension-portal"></div>
+            <ul class="dimension-stats">
+              <li><span>Boss 路线</span><strong>已清理</strong></li>
+              <li><span>魔法植培</span><strong>繁盛</strong></li>
+              <li><span>材料缓存</span><strong>7.4 M</strong></li>
+            </ul>
+          </article>
+
+          <article class="dimension-card reveal tilt-card accent-amber">
+            <span class="dim-label">ALFHEIM</span>
+            <h3>精灵域法力通道</h3>
+            <div class="dimension-portal"></div>
+            <ul class="dimension-stats">
+              <li><span>Mana Burst</span><strong>连续投送</strong></li>
+              <li><span>符文合成</span><strong>自动排程</strong></li>
+              <li><span>结界纯度</span><strong>99.1%</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="command-console reveal">
+        <div class="console-feed">
+          <div class="panel-label">主控终端 / Command Feed</div>
+          <h3>Console Stream</h3>
+          <div class="terminal" id="terminalFeed">
+            <div class="terminal-line">
+              <span class="stamp">23:48:11</span>
+              <span>ENERGY CORE / STABLE</span>
+            </div>
+            <div class="terminal-line">
+              <span class="stamp">23:48:14</span>
+              <span>AE2 GRID / ONLINE</span>
+            </div>
+            <div class="terminal-line">
+              <span class="stamp">23:48:19</span>
+              <span>MANA FLOW / CHARGED</span>
+            </div>
+            <div class="terminal-line">
+              <span class="stamp">23:48:22</span>
+              <span>GATE ARRAY / LOCKED</span>
+            </div>
+            <div class="terminal-line">
+              <span class="stamp">23:48:26</span>
+              <span>DEFENSE GRID / ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="console-actions">
+          <div class="panel-label">快速命令 / Quick Actions</div>
+          <h3>Ops Controls</h3>
+          <div class="action-grid">
+            <button class="action-btn" type="button">重平衡能源矩阵</button>
+            <button class="action-btn" type="button">刷新量子仓储索引</button>
+            <button class="action-btn" type="button">启动维度门预热</button>
+            <button class="action-btn" type="button">同步魔法工业网</button>
+            <button class="action-btn" type="button">执行夜间防御协议</button>
+            <button class="action-btn" type="button">推送基地状态快照</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
